@@ -12,6 +12,8 @@ import java.util.NoSuchElementException;
 
 /**
  * 트랜잭션 - 트랜잭션 매니저
+ * dataSourceUtils.getConnection()
+ * dataSourceUtils.releaseConnection()
  */
 @Slf4j
 public class MemberRepositoryV3 {
@@ -68,8 +70,8 @@ public class MemberRepositoryV3 {
             log.error("db error",e);
             throw e;
         } finally {
-            //커넥션은 여기서 닫지 않는다.
-            close(pstmt, rs);
+
+            close(con,pstmt, rs);
         }
     }
 
@@ -92,10 +94,7 @@ public class MemberRepositoryV3 {
             log.error("db error",e);
             throw e;
         } finally {
-            //외부 자원이기 때문에 무조건 마지막에 끝내야 한다.
-            //커넥션은 종료하지 않는다.
-            JdbcUtils.closeResultSet(rs);
-            JdbcUtils.closeStatement(pstmt);
+            close(con,pstmt,null);
         }
     }
 

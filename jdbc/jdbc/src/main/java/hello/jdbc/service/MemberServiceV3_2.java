@@ -7,40 +7,35 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * 트랜잭션 - 트랜잭션 매니저
+ * 트랜잭션 - 트랜잭션 탬플릿 사용
  */
 @Slf4j
 @RequiredArgsConstructor
-public class MemberServiceV3_1 {
-    //jdbc 관련 datasource를 선언하지 않고 transactionmanager를 사용.
-    private final PlatformTransactionManager transactionManager;
+public class MemberServiceV3_2 {
 
+    //트랜잭션 템플릿
+    private final TransactionTemplate txTemplate;
     private final MemberRepositoryV3 memberRepository;
+
+    public MemberServiceV3_2(PlatformTransactionManager transactionManager, MemberRepositoryV3 memberRepository) {
+        this.txTemplate = new TransactionTemplate(transactionManager);
+        this.memberRepository = memberRepository;
+    }
 
     public void accountTransfer(String fromId, String toId, int money) throws SQLException {
 
-        //트랜잭션 시작
-        TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
-
-        try{
-            //비즈니스 로직 수행
-            bizLogic(fromId, toId, money);
-
-            //성공 -> 커밋 명령어 실행
-            transactionManager.commit(status);
-        } catch (Exception e) {
-            //실패 -> 롤백
-            transactionManager.rollback(status);
-            throw new IllegalStateException(e);
-        }
-        //트랜잭션 매니저가 커밋 혹은 롤백이 발생하면 다 커넥션을 정리해준다.
-        // -> release를 호출할 필요가 없어졌다.
+        txTemplate.executeWithoutResult((status) -> {
+            try {
+                bizLogic(fromId,toId,money);
+            } catch (SQLException e) {
+                throw new IllegalStateException(e);
+            }
+        });
     }
 
     private void bizLogic(String fromId, String toId, int money) throws SQLException {
