@@ -1,7 +1,9 @@
 package hello.springtx.apply;
 
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Call;
 import org.junit.jupiter.api.Test;
+import org.mockito.internal.verification.Calls;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -13,27 +15,27 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 @SpringBootTest
 public class InternalCallV1Test {
 
+
     @Autowired
     CallService callService;
 
     @Test
     void printProxy() {
-        log.info("callService class={}", callService.getClass());
+        log.info("callService class = {}",callService.getClass());
     }
 
     @Test
-    void internalCall() {
+    void internalCall () {
         callService.internal();
     }
 
     @Test
-    void externalCall() {
+    void externalCall () {
         callService.external();
     }
 
     @TestConfiguration
     static class InternalCallV1TestConfig {
-
         @Bean
         CallService callService() {
             return new CallService();
@@ -42,11 +44,10 @@ public class InternalCallV1Test {
 
     @Slf4j
     static class CallService {
-
         public void external() {
             log.info("call external");
             printTxInfo();
-            this.internal();
+            internal();
         }
 
         @Transactional
@@ -57,7 +58,8 @@ public class InternalCallV1Test {
 
         private void printTxInfo() {
             boolean txActive = TransactionSynchronizationManager.isActualTransactionActive();
-            log.info("tx active={}", txActive);
+            log.info("tx active = {}", txActive);
         }
     }
+
 }

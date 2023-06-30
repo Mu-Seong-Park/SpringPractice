@@ -6,22 +6,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+@Slf4j
 @SpringBootTest
 public class TxLevelTest {
 
-    @Autowired LevelService service;
+    @Autowired
+    LevelService levelService;
 
     @Test
     void orderTest() {
-        service.write();
-        service.read();
+        levelService.write();
+        levelService.read();
     }
 
     @TestConfiguration
-    static class TxLevelTestConfig {
+    static class LevelTestConfig {
+
         @Bean
         LevelService levelService() {
             return new LevelService();
@@ -43,11 +47,15 @@ public class TxLevelTest {
             printTxInfo();
         }
 
-        private void printTxInfo() {
-            boolean txActive = TransactionSynchronizationManager.isActualTransactionActive();
-            log.info("tx active={}", txActive);
-            boolean readOnly = TransactionSynchronizationManager.isCurrentTransactionReadOnly();
-            log.info("tx readOnly={}", readOnly);
+        public void printTxInfo() {
+             boolean txActive = TransactionSynchronizationManager.isActualTransactionActive();
+             log.info("tx active = {}",txActive);
+
+             boolean isReadOnly = TransactionSynchronizationManager.isCurrentTransactionReadOnly();
+             log.info("tx readOnly = {}",isReadOnly);
+
         }
+
     }
+
 }
