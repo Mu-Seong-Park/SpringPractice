@@ -1,0 +1,10 @@
+thymeleaf의 커맨드객체(th:object="${객체}")를 쓰려면, 객체에 대한 정보를 알려줘야 한다.
+(https://velog.io/@dnflrhkddyd/Spring-%EC%BB%A4%EB%A7%A8%EB%93%9C-%EA%B0%9D%EC%B2%B4)
+
+
+그래서 controller에서 그 페이지로 Model을 넘겨주는데, 빈 모델 어트리뷰트를
+생성하고 넘긴다
+ex) model.addAttribute("item", new Item());
+
+그리고, th:field=*{객체의 field}를 사용함으로, id = ~~, name =~~~~, value=~~~~
+이런걸 없애도 자동으로 만들어 줄 수 있다.
